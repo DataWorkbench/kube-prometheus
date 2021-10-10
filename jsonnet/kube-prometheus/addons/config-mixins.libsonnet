@@ -30,5 +30,9 @@ local withImageRepository(repository) = {
 };
 
 {
+  imageName:: imageName,
+}
+
+{
   withImageRepository:: withImageRepository,
 }

@@ -9,4 +9,4 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: blackbox-exporter
-  namespace: monitoring
+  namespace: dev

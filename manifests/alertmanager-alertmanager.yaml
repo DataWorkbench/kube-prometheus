@@ -8,8 +8,9 @@ metadata:
     app.kubernetes.io/part-of: kube-prometheus
     app.kubernetes.io/version: 0.21.0
   name: main
-  namespace: monitoring
+  namespace: dev
 spec:
+  externalUrl: http://alertmanager.example.com
   image: quay.io/prometheus/alertmanager:v0.21.0
   nodeSelector:
     kubernetes.io/os: linux

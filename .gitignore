@@ -4,3 +4,4 @@ vendor/
 ./auth
 .swp
 crdschemas/
+.idea/

@@ -8,15 +8,16 @@ metadata:
     app.kubernetes.io/version: 2.26.0
     prometheus: k8s
   name: k8s
-  namespace: monitoring
+  namespace: dev
 spec:
   alerting:
     alertmanagers:
     - apiVersion: v2
       name: alertmanager-main
-      namespace: monitoring
+      namespace: dev
       port: web
   externalLabels: {}
+  externalUrl: http://prometheus.example.com
   image: quay.io/prometheus/prometheus:v2.26.0
   nodeSelector:
     kubernetes.io/os: linux

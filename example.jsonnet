@@ -1,5 +1,22 @@
+// prometheus stack namespace
+local prometheus_namespace = 'dev';
+// the namespace in which the flink cluster are deployed
+local app_namespace = 'my-flink';
+// name of the port configured in values.yaml of flink helm
+local port_name = 'metrics';
+local create_flink_service_monitor = import './flink-service-monitor.jsonnet';
+local custom_ingress = import './custom-ingress.jsonnet';
+
+// grafana DNS
+local grafana_host = 'grafana.example.com';
+// alert manager DNS
+local alert_manager_host = 'alertmanager.example.com';
+// prometheus dns
+local prometheus_host = 'prometheus.example.com';
+
 local kp =
   (import 'kube-prometheus/main.libsonnet') +
+  custom_ingress.custom_ingress(prometheus_namespace, grafana_host, alert_manager_host, prometheus_host) +
   // Uncomment the following imports to enable its patches
   // (import 'kube-prometheus/addons/anti-affinity.libsonnet') +
   // (import 'kube-prometheus/addons/managed-cluster.libsonnet') +
@@ -10,9 +27,13 @@ local kp =
   {
     values+:: {
       common+: {
-        namespace: 'monitoring',
+        namespace: prometheus_namespace,
+      },
+      prometheus+: {
+        namespaces+: [app_namespace],
       },
     },
+    customApplication: create_flink_service_monitor.flink_service_monitor(app_namespace, port_name),
   };
 
 { 'setup/0namespace-namespace': kp.kubePrometheus.namespace } +
@@ -31,4 +52,6 @@ local kp =
 { ['kubernetes-' + name]: kp.kubernetesControlPlane[name] for name in std.objectFields(kp.kubernetesControlPlane) }
 { ['node-exporter-' + name]: kp.nodeExporter[name] for name in std.objectFields(kp.nodeExporter) } +
 { ['prometheus-' + name]: kp.prometheus[name] for name in std.objectFields(kp.prometheus) } +
-{ ['prometheus-adapter-' + name]: kp.prometheusAdapter[name] for name in std.objectFields(kp.prometheusAdapter) }
+{ ['prometheus-adapter-' + name]: kp.prometheusAdapter[name] for name in std.objectFields(kp.prometheusAdapter) } +
+{ [name + '-ingress']: kp.ingress[name] for name in std.objectFields(kp.ingress) } +
+{ ['flink-cluster-' + name]: kp.customApplication[name] for name in std.objectFields(kp.customApplication) }

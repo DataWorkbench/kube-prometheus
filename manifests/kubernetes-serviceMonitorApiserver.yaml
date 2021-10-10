@@ -4,7 +4,7 @@ metadata:
   labels:
     app.kubernetes.io/name: apiserver
   name: kube-apiserver
-  namespace: monitoring
+  namespace: dev
 spec:
   endpoints:
   - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token

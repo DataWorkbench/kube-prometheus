@@ -1,0 +1,12 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: job-manager-monitor
+  namespace: my-flink
+spec:
+  endpoints:
+  - port: metrics
+  jobLabel: component
+  selector:
+    matchLabels:
+      component: jobmanager
