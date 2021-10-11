@@ -11,7 +11,7 @@ metadata:
   namespace: dev
 spec:
   externalUrl: http://alertmanager.example.com
-  image: quay.io/prometheus/alertmanager:v0.21.0
+  image: dataworkbench/alertmanager:v0.21.0
   nodeSelector:
     kubernetes.io/os: linux
   podMetadata:

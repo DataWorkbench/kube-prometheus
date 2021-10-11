@@ -1,3 +1,4 @@
+local mixin = import 'kube-prometheus/addons/config-mixins.libsonnet';
 // prometheus stack namespace
 local prometheus_namespace = 'dev';
 // the namespace in which the flink cluster are deployed
@@ -34,7 +35,7 @@ local kp =
       },
     },
     customApplication: create_flink_service_monitor.flink_service_monitor(app_namespace, port_name),
-  };
+  } + mixin.withImageRepository('dataworkbench');
 
 { 'setup/0namespace-namespace': kp.kubePrometheus.namespace } +
 {
