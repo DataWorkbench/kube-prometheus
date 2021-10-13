@@ -5,6 +5,12 @@ local prometheus_namespace = 'dev';
 local app_namespace = 'my-flink';
 // name of the port configured in values.yaml of flink helm
 local port_name = 'metrics';
+// monitor data retention time
+local retention_time = '30d';
+// pvc disk size
+local disk_size = '50Gi';
+local prom_pvc_config = import './prometheus-pvc.jsonnet';
+
 local create_flink_service_monitor = import './flink-service-monitor.jsonnet';
 local custom_ingress = import './custom-ingress.jsonnet';
 
@@ -34,6 +40,7 @@ local kp =
         namespaces+: [app_namespace],
       },
     },
+    prometheus+:: prom_pvc_config.prometheus_pvc(retention_time, disk_size),
     customApplication: create_flink_service_monitor.flink_service_monitor(app_namespace, port_name),
   } + mixin.withImageRepository('dataworkbench');
 
