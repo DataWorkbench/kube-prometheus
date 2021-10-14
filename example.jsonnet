@@ -1,29 +1,19 @@
 local mixin = import 'kube-prometheus/addons/config-mixins.libsonnet';
-// prometheus stack namespace
-local prometheus_namespace = 'dev';
-// the namespace in which the flink cluster are deployed
-local app_namespace = 'my-flink';
-// name of the port configured in values.yaml of flink helm
-local port_name = 'metrics';
-// monitor data retention time
-local retention_time = '30d';
-// pvc disk size
-local disk_size = '50Gi';
+local custom_config = import './monitor_config.jsonnet';
 local prom_pvc_config = import './prometheus-pvc.jsonnet';
-
 local create_flink_service_monitor = import './flink-service-monitor.jsonnet';
 local custom_ingress = import './custom-ingress.jsonnet';
 
 // grafana DNS
-local grafana_host = 'grafana.example.com';
+local grafana_host = custom_config.grafana_host;
 // alert manager DNS
-local alert_manager_host = 'alertmanager.example.com';
+local alert_manager_host = custom_config.alert_manager_host;
 // prometheus dns
-local prometheus_host = 'prometheus.example.com';
+local prometheus_host = custom_config.prometheus_host;
 
 local kp =
   (import 'kube-prometheus/main.libsonnet') +
-  custom_ingress.custom_ingress(prometheus_namespace, grafana_host, alert_manager_host, prometheus_host) +
+  custom_ingress.custom_ingress(custom_config.prometheus_namespace, grafana_host, alert_manager_host, prometheus_host) +
   // Uncomment the following imports to enable its patches
   // (import 'kube-prometheus/addons/anti-affinity.libsonnet') +
   // (import 'kube-prometheus/addons/managed-cluster.libsonnet') +
@@ -34,15 +24,15 @@ local kp =
   {
     values+:: {
       common+: {
-        namespace: prometheus_namespace,
+        namespace: custom_config.prometheus_namespace,
       },
       prometheus+: {
-        namespaces+: [app_namespace],
+        namespaces+: [custom_config.app_namespace],
       },
     },
-    prometheus+:: prom_pvc_config.prometheus_pvc(retention_time, disk_size),
-    customApplication: create_flink_service_monitor.flink_service_monitor(app_namespace, port_name),
-  } + mixin.withImageRepository('dataworkbench');
+    prometheus+:: prom_pvc_config.prometheus_pvc(custom_config.retention_time, custom_config.disk_size),
+    customApplication: create_flink_service_monitor.flink_service_monitor(custom_config.app_namespace, custom_config.port_name),
+  } + mixin.withImageRepository(custom_config.internal_registry);
 
 { 'setup/0namespace-namespace': kp.kubePrometheus.namespace } +
 {
